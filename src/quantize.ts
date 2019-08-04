@@ -288,12 +288,9 @@ const MMCQ = (function() {
   // each quantized region of color space), or null on error
 
   function getHisto(pixels) {
-    let histosize = 1 << (3 * sigbits),
-      histo = new Array(histosize),
-      index,
-      rval,
-      gval,
-      bval;
+    const histosize = 1 << (3 * sigbits),
+      histo = new Array(histosize);
+    let index, rval, gval, bval;
     pixels.forEach(function(pixel) {
       rval = pixel[0] >> rshift;
       gval = pixel[1] >> rshift;
@@ -341,9 +338,9 @@ const MMCQ = (function() {
       return [vbox.copy()];
     }
     /* Find the partial sum arrays along the selected axis. */
+    const partialsum = [],
+      lookaheadsum = [];
     let total = 0,
-      partialsum = [],
-      lookaheadsum = [],
       i,
       j,
       k,
@@ -392,9 +389,9 @@ const MMCQ = (function() {
     });
 
     function doCut(color) {
-      let dim1 = color + "1",
-        dim2 = color + "2",
-        left,
+      const dim1 = color + "1",
+        dim2 = color + "2";
+      let left,
         right,
         vbox1,
         vbox2,
