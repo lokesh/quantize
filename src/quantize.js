@@ -216,8 +216,8 @@ var MMCQ = (function() {
     contains: function(pixel) {
       var vbox = this,
         rval = pixel[0] >> rshift;
-      gval = pixel[1] >> rshift;
-      bval = pixel[2] >> rshift;
+      var gval = pixel[1] >> rshift;
+      var bval = pixel[2] >> rshift;
       return (
         rval >= vbox.r1 &&
         rval <= vbox.r2 &&
@@ -450,8 +450,7 @@ var MMCQ = (function() {
 
     // XXX: check color content and convert to grayscale if insufficient
 
-    var histo = getHisto(pixels),
-      histosize = 1 << (3 * sigbits);
+    var histo = getHisto(pixels);
 
     // check that we aren't below maxcolors already
     var nColors = 0;
