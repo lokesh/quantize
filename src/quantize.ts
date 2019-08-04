@@ -65,7 +65,7 @@ const MMCQ = (function() {
 
   class PQueue {
     private comparator: any;
-    private contents: any[];
+    contents: any[];
     private sorted: boolean;
 
     constructor(comparator) {
@@ -214,30 +214,32 @@ const MMCQ = (function() {
 
   // Color map
 
-  function CMap() {
-    this.vboxes = new PQueue(function(a, b) {
-      return pv.naturalOrder(
-        a.vbox.count() * a.vbox.volume(),
-        b.vbox.count() * b.vbox.volume()
-      );
-    });
-  }
-  CMap.prototype = {
-    push: function(vbox) {
+  class CMap {
+    private vboxes: PQueue;
+
+    constructor() {
+      this.vboxes = new PQueue(function(a, b) {
+        return pv.naturalOrder(
+          a.vbox.count() * a.vbox.volume(),
+          b.vbox.count() * b.vbox.volume()
+        );
+      });
+    }
+    push(vbox) {
       this.vboxes.push({
         vbox: vbox,
         color: vbox.avg()
       });
-    },
-    palette: function() {
+    }
+    palette() {
       return this.vboxes.map(function(vb) {
         return vb.color;
       });
-    },
-    size: function() {
+    }
+    size() {
       return this.vboxes.size();
-    },
-    map: function(color) {
+    }
+    map(color) {
       const vboxes = this.vboxes;
       for (let i = 0; i < vboxes.size(); i++) {
         if (vboxes.peek(i).vbox.contains(color)) {
@@ -245,12 +247,10 @@ const MMCQ = (function() {
         }
       }
       return this.nearest(color);
-    },
-    nearest: function(color) {
-      let vboxes = this.vboxes,
-        d1,
-        d2,
-        pColor;
+    }
+    nearest(color) {
+      const { vboxes } = this;
+      let d1, d2, pColor;
       for (let i = 0; i < vboxes.size(); i++) {
         d2 = Math.sqrt(
           Math.pow(color[0] - vboxes.peek(i).color[0], 2) +
@@ -263,10 +263,10 @@ const MMCQ = (function() {
         }
       }
       return pColor;
-    },
-    forcebw: function() {
+    }
+    forcebw() {
       // XXX: won't  work yet
-      const vboxes = this.vboxes;
+      const vboxes = this.vboxes.contents;
       vboxes.sort(function(a, b) {
         return pv.naturalOrder(pv.sum(a.color), pv.sum(b.color));
       });
@@ -282,7 +282,7 @@ const MMCQ = (function() {
       if (highest[0] > 251 && highest[1] > 251 && highest[2] > 251)
         vboxes[idx].color = [255, 255, 255];
     }
-  };
+  }
 
   // histo (1-d array, giving the number of pixels in
   // each quantized region of color space), or null on error
