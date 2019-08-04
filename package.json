@@ -5,7 +5,7 @@
   "homepage": "https://github.com/olivierlesnicki/quantize",
   "author": "Olivier Lesnicki (https://github.com/olivierlesnicki)",
   "files": [
-    "dist"
+    "dist/index.*"
   ],
   "keywords": [
     "image",

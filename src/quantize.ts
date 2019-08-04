@@ -1,30 +1,10 @@
+import pv from "./pv";
+
 /*
- * quantize.js Copyright 2008 Nick Rabinowitz
+ * quantize.ts Copyright 2008 Nick Rabinowitz
  * Ported to node.js by Olivier Lesnicki
  * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
  */
-
-// fill out a couple protovis dependencies
-/*
- * Block below copied from Protovis: http://mbostock.github.com/protovis/
- * Copyright 2010 Stanford Visualization Group
- * Licensed under the BSD License: http://www.opensource.org/licenses/bsd-license.php
- */
-if (!pv) {
-  var pv = {
-    naturalOrder: function(a: number, b: number) {
-      return a < b ? -1 : a > b ? 1 : 0;
-    },
-    sum: function(array: number[]) {
-      return array.reduce(function(p, d) {
-        return p + d;
-      }, 0);
-    },
-    max: function(array: number[]) {
-      return Math.max.apply(null, array);
-    }
-  };
-}
 
 /**
  * Basic Javascript port of the MMCQ (modified median cut quantization)
