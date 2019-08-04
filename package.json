@@ -24,10 +24,12 @@
     "scripts": {
         "prepublishOnly": "npm run build",
         "build": "microbundle --no-compress --no-sourcemap",
-        "watch": "microbundle --no-compress --no-sourcemap watch"
+        "watch": "microbundle --no-compress --no-sourcemap watch",
+        "format": "prettier --write '*', '**/*'"
     },
     "dependencies": {},
     "devDependencies": {
-        "microbundle": "^0.11.0"
+        "microbundle": "^0.11.0",
+        "prettier": "^1.18.2"
     }
 }
