@@ -25,11 +25,15 @@
     "prepublishOnly": "npm run build",
     "build": "microbundle --no-compress --no-sourcemap",
     "watch": "microbundle --no-compress --no-sourcemap watch",
-    "format": "prettier --write '*', '**/*'"
+    "format": "prettier --write '*', '**/*'",
+    "lint": "eslint --fix src/ --ext .js"
   },
   "dependencies": {},
   "devDependencies": {
+    "eslint": "^5.3.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "microbundle": "^0.11.0",
-    "prettier": "^1.18.2"
+    "prettier": "1.18.2"
   }
 }
