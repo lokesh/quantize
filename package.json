@@ -18,25 +18,29 @@
     "Olivier Lesnicki (https://github.com/olivierlesnicki)"
   ],
   "license": "MIT",
-  "source": "src/quantize.js",
+  "source": "src/quantize.ts",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "microbundle --no-compress --no-sourcemap",
     "watch": "microbundle --no-compress --no-sourcemap watch",
+    "compile": "tsc src/quantize.ts --noEmit --watch",
     "format": "prettier --write '*', '**/*'",
-    "lint": "eslint --fix src/ --ext .js"
+    "lint": "eslint --fix src/ --ext .ts"
   },
   "dependencies": {},
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
     "eslint": "^5.3.0",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "husky": "^3.0.2",
     "lint-staged": "^9.2.1",
     "microbundle": "^0.11.0",
-    "prettier": "1.18.2"
+    "prettier": "1.18.2",
+    "typescript": "^3.5.3"
   },
   "husky": {
     "hooks": {
