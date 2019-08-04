@@ -13,7 +13,7 @@
 if (!pv) {
   var pv = {
     map: function(array, f) {
-      var o = {};
+      const o = {};
       return f
         ? array.map(function(d, i) {
             o.index = i;
@@ -25,7 +25,7 @@ if (!pv) {
       return a < b ? -1 : a > b ? 1 : 0;
     },
     sum: function(array, f) {
-      var o = {};
+      const o = {};
       return array.reduce(
         f
           ? function(p, d, i) {
@@ -66,9 +66,9 @@ var newPixels = myPixels.map(function(p) {
 });
  
  */
-var MMCQ = (function() {
+const MMCQ = (function() {
   // private constants
-  var sigbits = 5,
+  const sigbits = 5,
     rshift = 8 - sigbits,
     maxIterations = 1000,
     fractByPopulations = 0.75;
@@ -82,7 +82,7 @@ var MMCQ = (function() {
   // Simple priority queue
 
   function PQueue(comparator) {
-    var contents = [],
+    let contents = [],
       sorted = false;
 
     function sort() {
@@ -120,7 +120,7 @@ var MMCQ = (function() {
   // 3d color space box
 
   function VBox(r1, r2, g1, g2, b1, b2, histo) {
-    var vbox = this;
+    const vbox = this;
     vbox.r1 = r1;
     vbox.r2 = r2;
     vbox.g1 = g1;
@@ -131,7 +131,7 @@ var MMCQ = (function() {
   }
   VBox.prototype = {
     volume: function(force) {
-      var vbox = this;
+      const vbox = this;
       if (!vbox._volume || force) {
         vbox._volume =
           (vbox.r2 - vbox.r1 + 1) *
@@ -141,10 +141,10 @@ var MMCQ = (function() {
       return vbox._volume;
     },
     count: function(force) {
-      var vbox = this,
+      const vbox = this,
         histo = vbox.histo;
       if (!vbox._count_set || force) {
-        var npix = 0,
+        let npix = 0,
           i,
           j,
           k,
@@ -163,7 +163,7 @@ var MMCQ = (function() {
       return vbox._count;
     },
     copy: function() {
-      var vbox = this;
+      const vbox = this;
       return new VBox(
         vbox.r1,
         vbox.r2,
@@ -175,10 +175,10 @@ var MMCQ = (function() {
       );
     },
     avg: function(force) {
-      var vbox = this,
+      const vbox = this,
         histo = vbox.histo;
       if (!vbox._avg || force) {
-        var ntot = 0,
+        let ntot = 0,
           mult = 1 << (8 - sigbits),
           rsum = 0,
           gsum = 0,
@@ -214,10 +214,10 @@ var MMCQ = (function() {
       return vbox._avg;
     },
     contains: function(pixel) {
-      var vbox = this,
+      const vbox = this,
         rval = pixel[0] >> rshift;
-      var gval = pixel[1] >> rshift;
-      var bval = pixel[2] >> rshift;
+      const gval = pixel[1] >> rshift;
+      const bval = pixel[2] >> rshift;
       return (
         rval >= vbox.r1 &&
         rval <= vbox.r2 &&
@@ -255,8 +255,8 @@ var MMCQ = (function() {
       return this.vboxes.size();
     },
     map: function(color) {
-      var vboxes = this.vboxes;
-      for (var i = 0; i < vboxes.size(); i++) {
+      const vboxes = this.vboxes;
+      for (let i = 0; i < vboxes.size(); i++) {
         if (vboxes.peek(i).vbox.contains(color)) {
           return vboxes.peek(i).color;
         }
@@ -264,11 +264,11 @@ var MMCQ = (function() {
       return this.nearest(color);
     },
     nearest: function(color) {
-      var vboxes = this.vboxes,
+      let vboxes = this.vboxes,
         d1,
         d2,
         pColor;
-      for (var i = 0; i < vboxes.size(); i++) {
+      for (let i = 0; i < vboxes.size(); i++) {
         d2 = Math.sqrt(
           Math.pow(color[0] - vboxes.peek(i).color[0], 2) +
             Math.pow(color[1] - vboxes.peek(i).color[1], 2) +
@@ -283,18 +283,18 @@ var MMCQ = (function() {
     },
     forcebw: function() {
       // XXX: won't  work yet
-      var vboxes = this.vboxes;
+      const vboxes = this.vboxes;
       vboxes.sort(function(a, b) {
         return pv.naturalOrder(pv.sum(a.color), pv.sum(b.color));
       });
 
       // force darkest color to black if everything < 5
-      var lowest = vboxes[0].color;
+      const lowest = vboxes[0].color;
       if (lowest[0] < 5 && lowest[1] < 5 && lowest[2] < 5)
         vboxes[0].color = [0, 0, 0];
 
       // force lightest color to white if everything > 251
-      var idx = vboxes.length - 1,
+      const idx = vboxes.length - 1,
         highest = vboxes[idx].color;
       if (highest[0] > 251 && highest[1] > 251 && highest[2] > 251)
         vboxes[idx].color = [255, 255, 255];
@@ -305,7 +305,7 @@ var MMCQ = (function() {
   // each quantized region of color space), or null on error
 
   function getHisto(pixels) {
-    var histosize = 1 << (3 * sigbits),
+    let histosize = 1 << (3 * sigbits),
       histo = new Array(histosize),
       index,
       rval,
@@ -322,7 +322,7 @@ var MMCQ = (function() {
   }
 
   function vboxFromPixels(pixels, histo) {
-    var rmin = 1000000,
+    let rmin = 1000000,
       rmax = 0,
       gmin = 1000000,
       gmax = 0,
@@ -349,7 +349,7 @@ var MMCQ = (function() {
   function medianCutApply(histo, vbox) {
     if (!vbox.count()) return;
 
-    var rw = vbox.r2 - vbox.r1 + 1,
+    const rw = vbox.r2 - vbox.r1 + 1,
       gw = vbox.g2 - vbox.g1 + 1,
       bw = vbox.b2 - vbox.b1 + 1,
       maxw = pv.max([rw, gw, bw]);
@@ -358,7 +358,7 @@ var MMCQ = (function() {
       return [vbox.copy()];
     }
     /* Find the partial sum arrays along the selected axis. */
-    var total = 0,
+    let total = 0,
       partialsum = [],
       lookaheadsum = [],
       i,
@@ -409,7 +409,7 @@ var MMCQ = (function() {
     });
 
     function doCut(color) {
-      var dim1 = color + "1",
+      let dim1 = color + "1",
         dim2 = color + "2",
         left,
         right,
@@ -450,10 +450,10 @@ var MMCQ = (function() {
 
     // XXX: check color content and convert to grayscale if insufficient
 
-    var histo = getHisto(pixels);
+    const histo = getHisto(pixels);
 
     // check that we aren't below maxcolors already
-    var nColors = 0;
+    let nColors = 0;
     histo.forEach(function() {
       nColors++;
     });
@@ -462,7 +462,7 @@ var MMCQ = (function() {
     }
 
     // get the beginning vbox from the colors
-    var vbox = vboxFromPixels(pixels, histo),
+    const vbox = vboxFromPixels(pixels, histo),
       pq = new PQueue(function(a, b) {
         return pv.naturalOrder(a.count(), b.count());
       });
@@ -471,7 +471,7 @@ var MMCQ = (function() {
     // inner function to do the iteration
 
     function iter(lh, target) {
-      var ncolors = lh.size(),
+      let ncolors = lh.size(),
         niters = 0,
         vbox;
       while (niters < maxIterations) {
@@ -488,7 +488,7 @@ var MMCQ = (function() {
           continue;
         }
         // do the cut
-        var vboxes = medianCutApply(histo, vbox),
+        const vboxes = medianCutApply(histo, vbox),
           vbox1 = vboxes[0],
           vbox2 = vboxes[1];
 
@@ -510,7 +510,7 @@ var MMCQ = (function() {
     // console.log(pq.size(), pq.debug().length, pq.debug().slice());
 
     // Re-sort by the product of pixel occupancy times the size in color space.
-    var pq2 = new PQueue(function(a, b) {
+    const pq2 = new PQueue(function(a, b) {
       return pv.naturalOrder(a.count() * a.volume(), b.count() * b.volume());
     });
     while (pq.size()) {
@@ -521,7 +521,7 @@ var MMCQ = (function() {
     iter(pq2, maxcolors);
 
     // calculate the actual colors
-    var cmap = new CMap();
+    const cmap = new CMap();
     while (pq2.size()) {
       cmap.push(pq2.pop());
     }
