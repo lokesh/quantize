@@ -4,6 +4,9 @@
     "description": "A node.js module for color quantization, based on Leptonica.",
     "homepage": "https://github.com/olivierlesnicki/quantize",
     "author": "Olivier Lesnicki (https://github.com/olivierlesnicki)",
+    "files": [
+        "dist"
+    ],
     "keywords": [
         "image",
         "quantize",
@@ -22,6 +25,7 @@
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "scripts": {
+        "prepublishOnly": "npm run build",
         "build": "microbundle --no-compress --no-sourcemap",
         "watch": "microbundle --no-compress --no-sourcemap watch"
     },
