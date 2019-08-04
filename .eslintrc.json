@@ -17,6 +17,7 @@
     "@typescript-eslint/explicit-member-accessibility": [
       "warn",
       { "accessibility": "no-public" }
-    ]
+    ],
+    "@typescript-eslint/no-parameter-properties": "off"
   }
 }
