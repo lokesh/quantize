@@ -63,40 +63,42 @@ const MMCQ = (function() {
 
   // Simple priority queue
 
-  function PQueue(comparator) {
-    let contents = [],
-      sorted = false;
+  class PQueue {
+    private comparator: any;
+    private contents: any[];
+    private sorted: boolean;
 
-    function sort() {
-      contents.sort(comparator);
-      sorted = true;
+    constructor(comparator) {
+      this.comparator = comparator;
+      (this.contents = []), (this.sorted = false);
     }
-
-    return {
-      push: function(o) {
-        contents.push(o);
-        sorted = false;
-      },
-      peek: function(index) {
-        if (!sorted) sort();
-        if (index === undefined) index = contents.length - 1;
-        return contents[index];
-      },
-      pop: function() {
-        if (!sorted) sort();
-        return contents.pop();
-      },
-      size: function() {
-        return contents.length;
-      },
-      map: function(f) {
-        return contents.map(f);
-      },
-      debug: function() {
-        if (!sorted) sort();
-        return contents;
-      }
-    };
+    sort(comparator = this.comparator) {
+      this.contents.sort(comparator);
+      this.sorted = true;
+    }
+    push(o) {
+      this.contents.push(o);
+      this.sorted = false;
+    }
+    peek(index) {
+      if (!this.sorted) this.sort();
+      if (index === undefined) index = this.contents.length - 1;
+      return this.contents[index];
+    }
+    pop() {
+      if (!this.sorted) this.sort();
+      return this.contents.pop();
+    }
+    size() {
+      return this.contents.length;
+    }
+    map(f) {
+      return this.contents.map(f);
+    }
+    debug() {
+      if (!this.sorted) this.sort();
+      return this.contents;
+    }
   }
 
   // 3d color space box
