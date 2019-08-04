@@ -17,10 +17,7 @@
         "Nick Rabinowitz (https://github.com/nrabinowitz)",
         "Olivier Lesnicki (https://github.com/olivierlesnicki)"
     ],
-    "license": {
-        "type": "MIT",
-        "url": "http://github.com/olivierlesnicki/quantize/raw/master/LICENSE"
-    },
+    "license": "MIT",
     "source": "src/quantize.js",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
