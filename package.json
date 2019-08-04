@@ -1,35 +1,35 @@
 {
-    "name": "quantize",
-    "version": "1.3.0",
-    "description": "A node.js module for color quantization, based on Leptonica.",
-    "homepage": "https://github.com/olivierlesnicki/quantize",
-    "author": "Olivier Lesnicki (https://github.com/olivierlesnicki)",
-    "files": [
-        "dist"
-    ],
-    "keywords": [
-        "image",
-        "quantize",
-        "color",
-        "node"
-    ],
-    "contributors": [
-        "Nick Rabinowitz (https://github.com/nrabinowitz)",
-        "Olivier Lesnicki (https://github.com/olivierlesnicki)"
-    ],
-    "license": "MIT",
-    "source": "src/quantize.js",
-    "main": "dist/index.js",
-    "module": "dist/index.mjs",
-    "scripts": {
-        "prepublishOnly": "npm run build",
-        "build": "microbundle --no-compress --no-sourcemap",
-        "watch": "microbundle --no-compress --no-sourcemap watch",
-        "format": "prettier --write '*', '**/*'"
-    },
-    "dependencies": {},
-    "devDependencies": {
-        "microbundle": "^0.11.0",
-        "prettier": "^1.18.2"
-    }
+  "name": "quantize",
+  "version": "1.3.0",
+  "description": "A node.js module for color quantization, based on Leptonica.",
+  "homepage": "https://github.com/olivierlesnicki/quantize",
+  "author": "Olivier Lesnicki (https://github.com/olivierlesnicki)",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "image",
+    "quantize",
+    "color",
+    "node"
+  ],
+  "contributors": [
+    "Nick Rabinowitz (https://github.com/nrabinowitz)",
+    "Olivier Lesnicki (https://github.com/olivierlesnicki)"
+  ],
+  "license": "MIT",
+  "source": "src/quantize.js",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "microbundle --no-compress --no-sourcemap",
+    "watch": "microbundle --no-compress --no-sourcemap watch",
+    "format": "prettier --write '*', '**/*'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "microbundle": "^0.11.0",
+    "prettier": "^1.18.2"
+  }
 }
