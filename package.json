@@ -1,5 +1,5 @@
 {
-  "name": "@lokesh/quantize",
+  "name": "@lokesh.dhakar/quantize",
   "version": "1.2.0",
   "description": "A node.js module for color quantization, based on Leptonica.",
   "homepage": "https://github.com/olivierlesnicki/quantize",
