@@ -365,6 +365,17 @@ var MMCQ = (function() {
     }
 
     function quantize(pixels, maxcolors) {
+
+        // Add input validation
+        if (!Number.isInteger(maxcolors) || maxcolors < 1 || maxcolors > 256) {
+            throw new Error("Invalid maximum color count. It must be an integer between 1 and 256.");
+        }
+
+        // short-circuit
+        if (!pixels.length || maxcolors < 2 || maxcolors > 256) {
+            // console.log('wrong number of maxcolors');
+            return false;
+        }
         // short-circuit
         if (!pixels.length || maxcolors < 2 || maxcolors > 256) {
             // console.log('wrong number of maxcolors');
