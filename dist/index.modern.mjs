@@ -1,41 +1,108 @@
 /*
+ * Block below copied from Protovis: http://mbostock.github.com/protovis/
+ * Copyright 2010 Stanford Visualization Group
+ * Licensed under the BSD License: http://www.opensource.org/licenses/bsd-license.php
+ */
+const pv = {
+  naturalOrder: function (a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
+  },
+  sum: function (array) {
+    return array.reduce(function (p, d) {
+      return p + d;
+    }, 0);
+  },
+  max: function (array) {
+    return Math.max.apply(null, array);
+  }
+};
+
+/*
  * quantize.js Copyright 2008 Nick Rabinowitz
  * Ported to node.js by Olivier Lesnicki
  * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
  */
 
-// fill out a couple protovis dependencies
 /*
- * Block below copied from Protovis: http://mbostock.github.com/protovis/
- * Copyright 2010 Stanford Visualization Group
- * Licensed under the BSD License: http://www.opensource.org/licenses/bsd-license.php
+ * Modified Median Cut Quantization (MMCQ) Algorithm Explanation:
+ *
+ * The MMCQ algorithm is used for color quantization, reducing the number of distinct colors 
+ * in an image while maintaining visual similarity. Here's how it works:
+ *
+ * 1. Initialization: Create a 3D color space (VBox) representing the RGB color cube.
+ *
+ *    R
+ *    |
+ *    |   +-------+
+ *    |  /       /|
+ *    | /       / |
+ *    |/       /  |
+ *    +-------+   |
+ *    |       |   |
+ *    |       |  /
+ *    |       | /
+ *    |       |/
+ *    +-------+
+ *   /
+ *  /
+ * B         G
+ *
+ * 2. Color Histogram: Generate a histogram of colors, reducing from 8 to 5 bits per channel.
+ *
+ *    Frequency
+ *    |
+ *    |   ██
+ *    |   ██ ██
+ *    | ██████████
+ *    +------------
+ *      Colors
+ *
+ * 3. Initial VBox: Create an initial VBox encompassing all colors in the histogram.
+ *
+ * 4. Iterative Splitting: Repeatedly split VBoxes until the desired color count is reached:
+ *    a. Select the VBox with the largest population.
+ *    b. Find the longest dimension (R, G, or B).
+ *    c. Find the median point along that dimension.
+ *    d. Split the VBox into two new VBoxes at that point.
+ *
+ *    +-------+      +---+---+
+ *    |       |  ->  |   |   |
+ *    |       |      |   |   |
+ *    +-------+      +---+---+
+ *
+ * 5. Two-phase Splitting:
+ *    a. First phase: Split based on pixel count until 75% of target colors are reached.
+ *    b. Second phase: Split based on pixel count * volume in color space.
+ *
+ *    Phase 1     Phase 2
+ *    +---+---+   +---+---+
+ *    | 1 | 2 |   | 1a| 1b|
+ *    +---+---+ → +---+---+
+ *    | 3 | 4 |   | 2 | 3 |
+ *    +---+---+   +---+---+
+ *
+ * 6. Color Mapping: Each final VBox represents a color in the palette (usually the average).
+ *
+ * 7. Nearest Color Matching: For colors not in the palette, find the nearest by Euclidean distance.
+ *
+ *    Original    Palette     Mapped
+ *    +         ●   ●   ●    +
+ *    |           \ | /        ●
+ *    |            \|/
+ *    +             ●         +
+ *
+ * Key components:
+ * - VBox: Represents a 3D box in color space.
+ * - CMap: The final color map containing all VBoxes (colors) in the palette.
+ * - PQueue: Priority queue for efficient VBox selection.
+ * - getHisto: Creates the initial color histogram.
+ * - vboxFromPixels: Creates the initial VBox from pixel data.
+ * - medianCutApply: Performs VBox splitting.
+ * - quantize: Main function orchestrating the entire process.
+ *
+ * This implementation provides an efficient way to reduce an image's color palette 
+ * while preserving visual quality by focusing on the most significant color regions.
  */
-if (!pv) {
-  var pv = {
-    map: function (array, f) {
-      var o = {};
-      return f ? array.map(function (d, i) {
-        o.index = i;
-        return f.call(o, d);
-      }) : array.slice();
-    },
-    naturalOrder: function (a, b) {
-      return a < b ? -1 : a > b ? 1 : 0;
-    },
-    sum: function (array, f) {
-      var o = {};
-      return array.reduce(f ? function (p, d, i) {
-        o.index = i;
-        return p + f.call(o, d);
-      } : function (p, d) {
-        return p + d;
-      }, 0);
-    },
-    max: function (array, f) {
-      return Math.max.apply(null, f ? pv.map(array, f) : array);
-    }
-  };
-}
 
 /**
  * Basic Javascript port of the MMCQ (modified median cut quantization)
@@ -59,6 +126,29 @@ var newPixels = myPixels.map(function(p) {
 });
  
  */
+
+/**
+ * SimplePalette class
+ */
+class SimpleColorMap {
+  /**
+   * @param {Array} pixels - An array of [r, g, b] pixel values
+   */
+  constructor(colors) {
+    this.colors = colors;
+  }
+
+  /**
+   * Returns the stored palette (array of pixels)
+   * @returns {Array} The array of [r, g, b] pixel values
+   */
+  palette() {
+    return this.colors;
+  }
+  map(color) {
+    return color;
+  }
+}
 var MMCQ = function () {
   // private constants
   var sigbits = 5,
@@ -168,23 +258,28 @@ var MMCQ = function () {
           j,
           k,
           histoindex;
-        for (i = vbox.r1; i <= vbox.r2; i++) {
-          for (j = vbox.g1; j <= vbox.g2; j++) {
-            for (k = vbox.b1; k <= vbox.b2; k++) {
-              histoindex = getColorIndex(i, j, k);
-              hval = histo[histoindex] || 0;
-              ntot += hval;
-              rsum += hval * (i + 0.5) * mult;
-              gsum += hval * (j + 0.5) * mult;
-              bsum += hval * (k + 0.5) * mult;
+
+        // Special case: if the box represents a single color
+        if (vbox.r1 === vbox.r2 && vbox.g1 === vbox.g2 && vbox.b1 === vbox.b2) {
+          vbox._avg = [vbox.r1 << rshift, vbox.g1 << rshift, vbox.b1 << rshift];
+        } else {
+          for (i = vbox.r1; i <= vbox.r2; i++) {
+            for (j = vbox.g1; j <= vbox.g2; j++) {
+              for (k = vbox.b1; k <= vbox.b2; k++) {
+                histoindex = getColorIndex(i, j, k);
+                hval = histo[histoindex] || 0;
+                ntot += hval;
+                rsum += hval * (i + 0.5) * mult;
+                gsum += hval * (j + 0.5) * mult;
+                bsum += hval * (k + 0.5) * mult;
+              }
             }
           }
-        }
-        if (ntot) {
-          vbox._avg = [~~(rsum / ntot), ~~(gsum / ntot), ~~(bsum / ntot)];
-        } else {
-          //console.log('empty box');
-          vbox._avg = [~~(mult * (vbox.r1 + vbox.r2 + 1) / 2), ~~(mult * (vbox.g1 + vbox.g2 + 1) / 2), ~~(mult * (vbox.b1 + vbox.b2 + 1) / 2)];
+          if (ntot) {
+            vbox._avg = [~~(rsum / ntot), ~~(gsum / ntot), ~~(bsum / ntot)];
+          } else {
+            vbox._avg = [~~(mult * (vbox.r1 + vbox.r2 + 1) / 2), ~~(mult * (vbox.g1 + vbox.g2 + 1) / 2), ~~(mult * (vbox.b1 + vbox.b2 + 1) / 2)];
+          }
         }
       }
       return vbox._avg;
@@ -200,6 +295,27 @@ var MMCQ = function () {
 
   // Color map
 
+  /**
+   * CMap (Color Map) constructor
+   * 
+   * This function initializes a new CMap object, which is used to store and manage
+   * color information in the quantization process. The CMap uses a priority queue (PQueue)
+   * to efficiently organize and access color data.
+   * 
+   * Data Structure:
+   * - CMap: An object containing a priority queue of VBox objects.
+   * - VBox (Volume Box): Represents a 3D color space volume. Each VBox contains:
+   *   - Color range information (r1, r2, g1, g2, b1, b2)
+   *   - A histogram of colors within this range
+   *   - Methods for calculating average color, volume, and other properties
+   * 
+   * The priority queue is sorted based on the product of each VBox's count (number of pixels)
+   * and volume (size in color space). This sorting helps in selecting the most significant
+   * color ranges for the quantized palette, balancing between color popularity and diversity.
+   * 
+   * The CMap structure allows for efficient color quantization by iteratively splitting
+   * the color space (represented by VBoxes) and selecting the most representative colors.
+   */
   function CMap() {
     this.vboxes = new PQueue(function (a, b) {
       return pv.naturalOrder(a.vbox.count() * a.vbox.volume(), b.vbox.count() * b.vbox.volume());
@@ -384,7 +500,6 @@ var MMCQ = function () {
           // set dimensions
           vbox1[dim2] = d2;
           vbox2[dim1] = vbox1[dim2] + 1;
-          // console.log('vbox counts:', vbox.count(), vbox1.count(), vbox2.count());
           return [vbox1, vbox2];
         }
       }
@@ -393,10 +508,38 @@ var MMCQ = function () {
     return maxw == rw ? doCut('r') : maxw == gw ? doCut('g') : doCut('b');
   }
   function quantize(pixels, maxcolors) {
+    // Add input validation
+    if (!Number.isInteger(maxcolors) || maxcolors < 1 || maxcolors > 256) {
+      throw new Error("Invalid maximum color count. It must be an integer between 1 and 256.");
+    }
+
     // short-circuit
     if (!pixels.length || maxcolors < 2 || maxcolors > 256) {
       // console.log('wrong number of maxcolors');
       return false;
+    }
+    // short-circuit
+    if (!pixels.length || maxcolors < 2 || maxcolors > 256) {
+      // console.log('wrong number of maxcolors');
+      return false;
+    }
+
+    // Create an array of unique colors
+    const uniqueColors = [];
+    const seenColors = new Set();
+    for (let i = 0; i < pixels.length; i++) {
+      const color = pixels[i];
+      const colorKey = color.join(',');
+      if (!seenColors.has(colorKey)) {
+        seenColors.add(colorKey);
+        uniqueColors.push(color);
+      }
+    }
+
+    // If the number of unique colors is already less than or equal to maxColors,
+    // return these colors directly.
+    if (uniqueColors.length <= maxcolors) {
+      return new SimpleColorMap(uniqueColors);
     }
 
     // XXX: check color content and convert to grayscale if insufficient
