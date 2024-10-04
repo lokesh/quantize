@@ -5,6 +5,86 @@ import pv from "./pv";
  * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
  */
 
+/*
+ * Modified Median Cut Quantization (MMCQ) Algorithm Explanation:
+ *
+ * The MMCQ algorithm is used for color quantization, reducing the number of distinct colors 
+ * in an image while maintaining visual similarity. Here's how it works:
+ *
+ * 1. Initialization: Create a 3D color space (VBox) representing the RGB color cube.
+ *
+ *    R
+ *    |
+ *    |   +-------+
+ *    |  /       /|
+ *    | /       / |
+ *    |/       /  |
+ *    +-------+   |
+ *    |       |   |
+ *    |       |  /
+ *    |       | /
+ *    |       |/
+ *    +-------+
+ *   /
+ *  /
+ * B         G
+ *
+ * 2. Color Histogram: Generate a histogram of colors, reducing from 8 to 5 bits per channel.
+ *
+ *    Frequency
+ *    |
+ *    |   ██
+ *    |   ██ ██
+ *    | ██████████
+ *    +------------
+ *      Colors
+ *
+ * 3. Initial VBox: Create an initial VBox encompassing all colors in the histogram.
+ *
+ * 4. Iterative Splitting: Repeatedly split VBoxes until the desired color count is reached:
+ *    a. Select the VBox with the largest population.
+ *    b. Find the longest dimension (R, G, or B).
+ *    c. Find the median point along that dimension.
+ *    d. Split the VBox into two new VBoxes at that point.
+ *
+ *    +-------+      +---+---+
+ *    |       |  ->  |   |   |
+ *    |       |      |   |   |
+ *    +-------+      +---+---+
+ *
+ * 5. Two-phase Splitting:
+ *    a. First phase: Split based on pixel count until 75% of target colors are reached.
+ *    b. Second phase: Split based on pixel count * volume in color space.
+ *
+ *    Phase 1     Phase 2
+ *    +---+---+   +---+---+
+ *    | 1 | 2 |   | 1a| 1b|
+ *    +---+---+ → +---+---+
+ *    | 3 | 4 |   | 2 | 3 |
+ *    +---+---+   +---+---+
+ *
+ * 6. Color Mapping: Each final VBox represents a color in the palette (usually the average).
+ *
+ * 7. Nearest Color Matching: For colors not in the palette, find the nearest by Euclidean distance.
+ *
+ *    Original    Palette     Mapped
+ *    +         ●   ●   ●    +
+ *    |           \ | /        ●
+ *    |            \|/
+ *    +             ●         +
+ *
+ * Key components:
+ * - VBox: Represents a 3D box in color space.
+ * - CMap: The final color map containing all VBoxes (colors) in the palette.
+ * - PQueue: Priority queue for efficient VBox selection.
+ * - getHisto: Creates the initial color histogram.
+ * - vboxFromPixels: Creates the initial VBox from pixel data.
+ * - medianCutApply: Performs VBox splitting.
+ * - quantize: Main function orchestrating the entire process.
+ *
+ * This implementation provides an efficient way to reduce an image's color palette 
+ * while preserving visual quality by focusing on the most significant color regions.
+ */
 
 /**
  * Basic Javascript port of the MMCQ (modified median cut quantization)
