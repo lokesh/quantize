@@ -1,6 +1,6 @@
 {
   "name": "@lokesh.dhakar/quantize",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A node.js module for color quantization, based on Leptonica.",
   "homepage": "https://github.com/olivierlesnicki/quantize",
   "author": "Olivier Lesnicki (https://github.com/olivierlesnicki)",
