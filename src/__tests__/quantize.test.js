@@ -195,10 +195,6 @@ describe("Quantize function tests", () => {
       // Quantize the colors, allowing for up to 3 colors in the palette
       const colorMap = quantize(repeatedColors, 3);
 
-      // Log the input and output for debugging purposes
-      console.log("Input colors:", repeatedColors);
-      console.log("Quantized palette:", colorMap.palette());
-
       // Check that the resulting palette has exactly 2 colors
       // This is because there are only 2 unique colors in the input,
       // regardless of how many times they are repeated
