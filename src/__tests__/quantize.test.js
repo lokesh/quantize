@@ -17,6 +17,8 @@ describe("Quantize function tests", () => {
     colorMap = quantize(arrayOfPixels, maximumColorCount);
   });
 
+  
+
   it("Reduced Palette", () => {
     // This test checks if the quantize function correctly reduces the color palette
     // The original array of pixels contains 5 colors:
@@ -215,6 +217,29 @@ describe("Quantize function tests", () => {
       
       expect(colorMap.palette().length).toBeLessThanOrEqual(16);
       expect(processingTime).toBeLessThan(1000); // Assuming it should process within 1 second
+    });
+
+    it("should handle single color images correctly", () => {
+      // This test checks if the quantize function correctly handles an image with a single color
+      
+      // Define an array of pixels all with the same red color
+      const singleColorImage = Array(20).fill([255, 0, 0]); // 20 red pixels
+
+      // Apply quantization to reduce the colors to a maximum of 12
+      const colorMap = quantize(singleColorImage, 12);
+      console.log(colorMap);
+      // Check if the resulting palette has exactly 12 colors
+      expect(colorMap.palette().length).toBe(1);
+
+      // Verify that all colors in the resulting palette are the same red color
+      const expectedColor = [255, 0, 0];
+      colorMap.palette().forEach(color => {
+        expect(color).toEqual(expectedColor);
+      });
+
+      // Verify that mapping any pixel from the original image returns the same red color
+      const mappedColor = colorMap.map(singleColorImage[0]);
+      expect(mappedColor).toEqual(expectedColor);
     });
 
   });
